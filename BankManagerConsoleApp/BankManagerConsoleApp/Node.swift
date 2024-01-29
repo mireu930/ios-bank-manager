@@ -8,7 +8,7 @@
 import Foundation
 
 final class Node<T> {
-    let data: T
+    var data: T
     var next: Node?
     
     init(data: T, next: Node? = nil) {

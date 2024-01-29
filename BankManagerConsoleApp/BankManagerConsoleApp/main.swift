@@ -1,7 +1,9 @@
 //
 //  BankManagerConsoleApp - main.swift
-//  Created by yagom. 
+//  Created by 미르, 희동. 
 //  Copyright © yagom academy. All rights reserved.
 // 
 
 import Foundation
+
+ConsoleManager().create()

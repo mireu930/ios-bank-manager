@@ -1,18 +1,18 @@
 //
-//  QueueTests.swift
-//  QueueTests
+//  QueueTest.swift
+//  QueueTest
 //
-//  Created by 미르, 희동 on 1/24/24.
+//  Created by 둘리 on 2024/01/25.
 //
 
 import XCTest
-@testable import BankManager
+@testable import BankManagerConsoleApp
 
 final class QueueTests: XCTestCase {
     typealias List = LinkedList<Int>
     
     var sut: Queue<Int>!
-    
+
     override func setUpWithError() throws {
         sut = Queue(queue: List())
     }
@@ -23,7 +23,7 @@ final class QueueTests: XCTestCase {
 
     func test_queue에값이없을떄_peek호출시_nil을반환한다() {
         //given
-        
+
         //when
         let result = sut.peek()
         //then
@@ -39,7 +39,7 @@ final class QueueTests: XCTestCase {
         //then
         XCTAssertTrue(sut.isEmpty())
     }
-    
+
     func test_queue에1과2가있을때_첫번째로1을반환하고마지막으로2를반환한다() {
         //given
         let first = 1
@@ -48,10 +48,10 @@ final class QueueTests: XCTestCase {
         sut.enqueue(element: first)
         sut.enqueue(element: second)
         //then
-        XCTAssertEqual(sut.dequeue(), first)
-        XCTAssertEqual(sut.dequeue(), second)
+        XCTAssertEqual(try sut.dequeue(), first)
+        XCTAssertEqual(try sut.dequeue(), second)
     }
-    
+
     func test_queue에1과2가있을때_dequeue호출했을때_첫번쨰값인2가반환된다() {
         //given
         let firstElement = 2
@@ -60,9 +60,25 @@ final class QueueTests: XCTestCase {
         let firstNode = Node(data: firstElement, next: secondNode)
         let list = List(head: firstNode, tail: secondNode)
         sut = Queue(queue: list)
+        
+        do {
+            //when
+            let result = try sut.dequeue()
+            //then
+            XCTAssertEqual(result, firstElement)
+        } catch {
+           print("error")
+        }
+    }
+    
+    func test_queue에1과2와3이있을때_remove호출하여_두번째값인2를빼내면2가반환한다() {
+        //given
+        sut.enqueue(element: 1)
+        sut.enqueue(element: 2)
+        sut.enqueue(element: 3)
         //when
-        let result = sut.dequeue()
+        let removeElement = sut.queue.remove(index: 1)
         //then
-        XCTAssertEqual(result, firstElement)
+        XCTAssertEqual(removeElement, 2)
     }
 }

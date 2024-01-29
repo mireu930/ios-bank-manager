@@ -8,7 +8,7 @@
 import Foundation
 
 struct Queue<T> {
-    private var queue: LinkedList<T>
+    private(set) var queue: LinkedList<T>
     
     init(queue: LinkedList<T>) {
         self.queue = queue
@@ -18,8 +18,9 @@ struct Queue<T> {
         queue.append(value: element)
     }
     
-    func dequeue() -> T? {
-        queue.removeFirst()
+    func dequeue() throws -> T? {
+        guard let dequeue = queue.removeFirst() else { throw QueueError.dequeueError }
+        return dequeue
     }
     
     func isEmpty() -> Bool {
