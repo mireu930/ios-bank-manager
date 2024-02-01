@@ -7,11 +7,12 @@
 
 import Foundation
 
-protocol Number {
+protocol CustomerNumbering {
     var numOfPerson: Int { get }
+    var banking: Banking? { get }
 }
 
-struct Customer: Number {
-    var numOfPerson: Int
-    
+struct Customer: CustomerNumbering {
+    let banking: Banking?
+    private(set) var numOfPerson: Int
 }

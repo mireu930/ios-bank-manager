@@ -7,24 +7,34 @@
 
 import Foundation
 
-struct ConsoleManager {
-    let isBool: Bool = true
-    let randomNumber: Int = Int.random(in: 10...30)
+struct ConsoleManager: CustomerNumbering {
+    var banking: Banking?
+    private let isBool: Bool = true
+    var numOfPerson: Int { Int.random(in: 10...30) }
     
-    func create() {
+    private enum Message {
+        static let menu = """
+                          1 : 은행개점
+                          2 : 종료
+                          입력 :
+                          """
+        static let reselection = "메뉴를 다시 선택해주세요."
+        static let first = "1"
+        static let second = "2"
+    }
+    
+    func startBank() {
         while isBool {
-            print("1 : 은행개점")
-            print("2 : 종료")
-            print("입력 :", terminator:" ")
+            print(Message.menu, terminator: " ")
             guard let input = readLine() else { return }
             
             switch input {
-            case "1":
-                Bank(customNum: randomNumber).openBank()
-            case "2":
+            case Message.first:
+                Bank(customNum: numOfPerson, bankManager: BankManager(bankClerk: [.deposit: BankClerk(work: .deposit), .loan: BankClerk(work: .loan)])).openBank()
+            case Message.second:
                 return
             default:
-                print("메뉴를 다시 선택해주세요.")
+                print(Message.reselection)
                 continue
             }
         }

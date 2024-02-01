@@ -6,4 +6,4 @@
 
 import Foundation
 
-ConsoleManager().create()
+ConsoleManager().startBank()
