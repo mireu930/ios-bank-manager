@@ -8,40 +8,56 @@ import Foundation
 
 struct BankManager {
     private let queue = Queue<CustomerNumbering>(queue: LinkedList<CustomerNumbering>())
-    private let bankClerk: [Banking: BankClerk]
-    
-    init(bankClerk: [Banking : BankClerk]) {
-        self.bankClerk = bankClerk
-    }
+    private let semaphore = DispatchSemaphore(value: 2)
+    private let semaphore2 = DispatchSemaphore(value: 1)
+    private let dispatchQueue = DispatchQueue.global(qos: .utility)
+    weak var delegate: ManageLabel?
     
     func standBy(customer: CustomerNumbering) {
         queue.enqueue(element: customer)
     }
     
-    func assign() throws {
-        let dispatchgroup = DispatchGroup()
-        let semaphore = DispatchSemaphore(value: 2)
-        let loanQueue = DispatchQueue(label: "loanQueue")
-        let depositQueue = DispatchQueue(label: "depositQueue", attributes: .concurrent)
-        
+    func stop() {
+        queue.clear()
+    }
+    
+    func assignBank(dispatchGroup: DispatchGroup) throws {
         while let list = try? queue.dequeue(), let banking = list.banking {
             guard let customer = list as? Customer else {
                 throw QueueError.dequeueError
             }
             switch banking {
                 case .deposit:
-                    depositQueue.async(group: dispatchgroup) {
-                        semaphore.wait()
-                        bankClerk[.deposit]?.recieve(customer: customer)
-                        semaphore.signal()
-                    }
-                    
+                assignDeposit(customer: customer, dispatchGroup: dispatchGroup)
                 case .loan:
-                    loanQueue.async(group: dispatchgroup) {
-                        bankClerk[.loan]?.recieve(customer: customer)
-                    }
+                assignLoan(customer: customer, dispatchGroup: dispatchGroup)
                 }
             }
-        dispatchgroup.wait()
+    }
+    
+    func assignDeposit(customer: Customer, dispatchGroup: DispatchGroup) {
+        dispatchQueue.async(group: dispatchGroup) {
+            semaphore.wait()
+            recieve(customer: customer)
+            semaphore.signal()
+        }
+    }
+    
+    func assignLoan(customer: Customer, dispatchGroup: DispatchGroup) {
+        dispatchQueue.async(group: dispatchGroup) {
+            semaphore2.wait()
+            recieve(customer: customer)
+            semaphore2.signal()
+        }
+    }
+    
+    func recieve(customer: Customer) {
+        delegate?.turn(cusomer: customer)
+        paceTime(customer.banking?.pace ?? 0)
+        delegate?.quit(cusomer: customer)
+    }
+    
+    private func paceTime(_ pace: Double) {
+        usleep(useconds_t(pace * 1000000))
     }
 }
